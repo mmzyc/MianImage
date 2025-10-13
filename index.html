@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub图床索引 - 自动获取</title>
+    <title>我的GitHub图床 - 自动获取</title>
     <style>
-        /* 样式保持不变，与之前相同 */
         * {
             margin: 0;
             padding: 0;
@@ -28,10 +27,10 @@
         header {
             text-align: center;
             margin-bottom: 40px;
-            padding: 20px;
+            padding: 30px;
             background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             color: white;
-            border-radius: 10px;
+            border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         
@@ -45,41 +44,19 @@
             opacity: 0.9;
         }
         
-        .config-section {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .config-input {
+        .stats {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
         }
         
-        .config-input input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-        
-        .config-input button {
-            padding: 12px 25px;
-            background: #6a11cb;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.3s;
-        }
-        
-        .config-input button:hover {
-            background: #2575fc;
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
         }
         
         .controls {
@@ -109,28 +86,6 @@
             outline: none;
             border-color: #6a11cb;
             box-shadow: 0 2px 10px rgba(106, 17, 203, 0.2);
-        }
-        
-        .category-filter {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .category-btn {
-            padding: 10px 20px;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-        
-        .category-btn:hover, .category-btn.active {
-            background-color: #6a11cb;
-            color: white;
-            border-color: #6a11cb;
         }
         
         .image-grid {
@@ -173,9 +128,38 @@
             text-overflow: ellipsis;
         }
         
-        .image-date {
+        .image-url {
             font-size: 0.8rem;
             color: #777;
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+        
+        .image-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #777;
+        }
+        
+        .image-type {
+            background: #f1f3f4;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #e74c3c;
+            font-size: 1.1rem;
         }
         
         .modal {
@@ -185,7 +169,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.9);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -205,17 +189,41 @@
         
         .close-btn {
             position: absolute;
-            top: -40px;
+            top: -50px;
             right: 0;
             color: white;
-            font-size: 2rem;
+            font-size: 2.5rem;
             cursor: pointer;
+            background: rgba(0, 0, 0, 0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
+        .image-actions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        
+        .action-btn:hover {
+            background: white;
         }
         
         footer {
@@ -246,7 +254,7 @@
             }
             
             h1 {
-                fontSize: 2rem;
+                font-size: 2rem;
             }
         }
     </style>
@@ -254,37 +262,22 @@
 <body>
     <div class="container">
         <header>
-            <h1>GitHub图床索引</h1>
-            <p class="subtitle">自动获取并展示您的GitHub图片</p>
-        </header>
-        
-        <div class="config-section">
-            <h3>配置您的GitHub仓库</h3>
-            <div class="config-input">
-                <input type="text" id="repo-input" placeholder="输入GitHub仓库地址，例如：username/repo">
-                <button id="load-images">加载图片</button>
+            <h1>我的GitHub图床</h1>
+            <p class="subtitle">自动扫描并展示仓库中的所有图片</p>
+            <div class="stats">
+                <div class="stat-item" id="total-count">图片总数: 加载中...</div>
+                <div class="stat-item" id="repo-info">仓库: 加载中...</div>
             </div>
-            <p style="color: #666; font-size: 0.9rem;">
-                提示：输入格式为 "用户名/仓库名"，例如 "octocat/Hello-World"
-            </p>
-        </div>
+        </header>
         
         <div class="controls">
             <div class="search-box">
                 <input type="text" id="search-input" placeholder="搜索图片名称...">
             </div>
-            
-            <div class="category-filter">
-                <button class="category-btn active" data-category="all">全部</button>
-                <button class="category-btn" data-category="jpg">JPG</button>
-                <button class="category-btn" data-category="png">PNG</button>
-                <button class="category-btn" data-category="gif">GIF</button>
-                <button class="category-btn" data-category="svg">SVG</button>
-            </div>
         </div>
         
         <div class="loading" id="loading-message">
-            请在上方输入GitHub仓库地址并点击"加载图片"
+            正在自动扫描GitHub仓库中的图片...
         </div>
         
         <div class="image-grid" id="image-grid">
@@ -292,7 +285,7 @@
         </div>
         
         <footer>
-            <p>© 2023 GitHub图床索引 | 图片托管于GitHub</p>
+            <p>© 2023 我的GitHub图床 | 图片自动获取自GitHub仓库</p>
         </footer>
     </div>
     
@@ -301,74 +294,133 @@
         <div class="modal-content">
             <span class="close-btn" id="close-modal">&times;</span>
             <img id="modal-image" src="" alt="预览图片">
+            <div class="image-actions">
+                <button class="action-btn" id="copy-url">复制链接</button>
+                <button class="action-btn" id="download-btn">下载图片</button>
+            </div>
         </div>
     </div>
     
     <script>
-        // 配置部分
-        const repoInput = document.getElementById('repo-input');
-        const loadButton = document.getElementById('load-images');
-        const loadingMessage = document.getElementById('loading-message');
-        const imageGrid = document.getElementById('image-grid');
-        const searchInput = document.getElementById('search-input');
-        const categoryButtons = document.querySelectorAll('.category-btn');
-        const modal = document.getElementById('image-modal');
-        const modalImage = document.getElementById('modal-image');
-        const closeModal = document.getElementById('close-modal');
-        
-        let allImages = [];
-        let currentRepo = '';
-        
-        // 加载图片函数
-        async function loadImagesFromRepo(repo) {
-            loadingMessage.textContent = '正在加载图片...';
-            imageGrid.innerHTML = '';
-            allImages = [];
+        // 自动获取当前页面的GitHub仓库信息
+        function getCurrentRepo() {
+            // 从当前URL获取仓库信息（如果通过GitHub Pages访问）
+            const path = window.location.pathname.split('/');
+            if (path.length >= 3) {
+                return `${path[1]}/${path[2]}`;
+            }
             
+            // 如果无法从URL获取，尝试从页面meta信息获取
+            const metaRepo = document.querySelector('meta[name="github-repo"]');
+            if (metaRepo) {
+                return metaRepo.getAttribute('content');
+            }
+            
+            // 最后尝试从常见的GitHub Pages模式推断
+            const hostname = window.location.hostname;
+            if (hostname.endsWith('.github.io')) {
+                const username = hostname.split('.')[0];
+                const repoFromPath = path[1] || username + '.github.io';
+                return `${username}/${repoFromPath}`;
+            }
+            
+            return null;
+        }
+
+        // 递归获取仓库中的所有图片文件
+        async function getAllImagesFromRepo(repo, path = '') {
             try {
-                // 使用GitHub API获取仓库内容
-                const apiUrl = `https://api.github.com/repos/${repo}/contents/`;
+                const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
                 const response = await fetch(apiUrl);
                 
                 if (!response.ok) {
-                    throw new Error('仓库不存在或无访问权限');
+                    throw new Error(`API请求失败: ${response.status}`);
                 }
                 
                 const contents = await response.json();
+                let images = [];
                 
-                // 过滤出图片文件
-                const imageFiles = contents.filter(file => {
-                    const extension = file.name.split('.').pop().toLowerCase();
-                    return ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(extension);
-                });
+                for (const item of contents) {
+                    if (item.type === 'file') {
+                        const extension = item.name.split('.').pop().toLowerCase();
+                        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'ico'];
+                        
+                        if (imageExtensions.includes(extension)) {
+                            images.push({
+                                name: item.name,
+                                url: item.download_url,
+                                type: extension,
+                                size: item.size,
+                                path: path,
+                                fullPath: path ? `${path}/${item.name}` : item.name
+                            });
+                        }
+                    } else if (item.type === 'dir') {
+                        // 递归扫描子目录
+                        const subImages = await getAllImagesFromRepo(repo, item.path);
+                        images = images.concat(subImages);
+                    }
+                }
                 
-                if (imageFiles.length === 0) {
-                    loadingMessage.textContent = '该仓库中没有找到图片文件';
+                return images;
+            } catch (error) {
+                console.error('获取图片失败:', error);
+                throw error;
+            }
+        }
+
+        // DOM元素
+        const loadingMessage = document.getElementById('loading-message');
+        const imageGrid = document.getElementById('image-grid');
+        const searchInput = document.getElementById('search-input');
+        const modal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const closeModal = document.getElementById('close-modal');
+        const copyUrlBtn = document.getElementById('copy-url');
+        const downloadBtn = document.getElementById('download-btn');
+        const totalCount = document.getElementById('total-count');
+        const repoInfo = document.getElementById('repo-info');
+
+        let allImages = [];
+        let currentImageUrl = '';
+
+        // 初始化图床
+        async function initializeGallery() {
+            try {
+                loadingMessage.textContent = '正在检测GitHub仓库...';
+                
+                // 自动检测当前仓库
+                const repo = getCurrentRepo();
+                if (!repo) {
+                    throw new Error('无法自动检测GitHub仓库，请确保通过GitHub Pages访问此页面');
+                }
+                
+                repoInfo.textContent = `仓库: ${repo}`;
+                loadingMessage.textContent = `正在扫描仓库 ${repo} 中的图片...`;
+                
+                // 获取所有图片
+                allImages = await getAllImagesFromRepo(repo);
+                
+                if (allImages.length === 0) {
+                    loadingMessage.textContent = '在仓库中没有找到图片文件';
                     return;
                 }
                 
-                // 构建图片数据
-                allImages = imageFiles.map(file => {
-                    const extension = file.name.split('.').pop().toLowerCase();
-                    return {
-                        name: file.name,
-                        url: file.download_url,
-                        size: file.size,
-                        category: extension,
-                        date: new Date().toISOString().split('T')[0] // 使用当前日期作为示例
-                    };
-                });
-                
-                displayImages(allImages);
+                // 更新统计信息
+                totalCount.textContent = `图片总数: ${allImages.length}`;
                 loadingMessage.textContent = '';
                 
+                // 显示图片
+                displayImages(allImages);
+                
             } catch (error) {
+                loadingMessage.className = 'error';
                 loadingMessage.textContent = `加载失败: ${error.message}`;
-                console.error('Error loading images:', error);
+                console.error('初始化失败:', error);
             }
         }
-        
-        // 显示图片函数
+
+        // 显示图片
         function displayImages(images) {
             imageGrid.innerHTML = '';
             
@@ -381,14 +433,20 @@
                 const imageCard = document.createElement('div');
                 imageCard.className = 'image-card';
                 imageCard.innerHTML = `
-                    <img src="${image.url}" alt="${image.name}" loading="lazy">
+                    <img src="${image.url}" alt="${image.name}" loading="lazy" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPua1i+ivlTwvdGV4dD48L3N2Zz4='">
                     <div class="image-info">
                         <div class="image-name">${image.name}</div>
-                        <div class="image-date">${image.date} • ${formatFileSize(image.size)}</div>
+                        <div class="image-url">${image.path ? `路径: ${image.path}/` : ''}</div>
+                        <div class="image-meta">
+                            <span>${formatFileSize(image.size)}</span>
+                            <span class="image-type">${image.type.toUpperCase()}</span>
+                        </div>
                     </div>
                 `;
                 
                 imageCard.addEventListener('click', () => {
+                    currentImageUrl = image.url;
                     modalImage.src = image.url;
                     modal.style.display = 'flex';
                 });
@@ -396,7 +454,7 @@
                 imageGrid.appendChild(imageCard);
             });
         }
-        
+
         // 文件大小格式化
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
@@ -405,70 +463,48 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
-        
-        // 事件监听
-        loadButton.addEventListener('click', () => {
-            const repo = repoInput.value.trim();
-            if (repo) {
-                currentRepo = repo;
-                loadImagesFromRepo(repo);
-            } else {
-                alert('请输入GitHub仓库地址');
-            }
-        });
-        
+
         // 搜索功能
         searchInput.addEventListener('input', () => {
             const searchTerm = searchInput.value.toLowerCase();
-            const activeCategory = document.querySelector('.category-btn.active').dataset.category;
             
             const filteredImages = allImages.filter(image => {
-                const matchesSearch = image.name.toLowerCase().includes(searchTerm);
-                const matchesCategory = activeCategory === 'all' || image.category === activeCategory;
-                return matchesSearch && matchesCategory;
+                return image.name.toLowerCase().includes(searchTerm) || 
+                       (image.path && image.path.toLowerCase().includes(searchTerm));
             });
             
             displayImages(filteredImages);
         });
-        
-        // 分类筛选
-        categoryButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                categoryButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                
-                const category = button.dataset.category;
-                const searchTerm = searchInput.value.toLowerCase();
-                
-                const filteredImages = allImages.filter(image => {
-                    const matchesSearch = image.name.toLowerCase().includes(searchTerm);
-                    const matchesCategory = category === 'all' || image.category === category;
-                    return matchesSearch && matchesCategory;
-                });
-                
-                displayImages(filteredImages);
-            });
-        });
-        
+
         // 模态框控制
         closeModal.addEventListener('click', () => {
             modal.style.display = 'none';
         });
-        
+
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.style.display = 'none';
             }
         });
-        
-        // 示例：自动加载一个公开的图片仓库（可选）
-        // 取消下面的注释可以自动加载一个示例仓库
-        /*
-        window.addEventListener('DOMContentLoaded', () => {
-            repoInput.value = 'github/explore'; // 示例仓库
-            loadImagesFromRepo('github/explore');
+
+        // 复制链接
+        copyUrlBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(currentImageUrl).then(() => {
+                alert('图片链接已复制到剪贴板！');
+            });
         });
-        */
+
+        // 下载图片
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = currentImageUrl;
+            const filename = currentImageUrl.split('/').pop() || 'image';
+            link.download = filename;
+            link.click();
+        });
+
+        // 页面加载完成后自动初始化
+        document.addEventListener('DOMContentLoaded', initializeGallery);
     </script>
 </body>
 </html>
